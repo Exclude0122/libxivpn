@@ -20,3 +20,6 @@ export CGO_CFLAGS="-target aarch64-linux-android"
 export CGO_LDFLAGS="-v"
 
 go build -buildmode=c-shared -trimpath -v -o libxivpn.so -ldflags="-s -w -buildid="
+
+chmod +x libxivpn.so
+upx --android-shlib libxivpn.so
