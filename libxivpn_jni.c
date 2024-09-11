@@ -8,7 +8,7 @@ void libxivpn_log(char * msg) {
 }
 
 extern char* libxivpn_version();
-extern void libxivpn_start(char* config, int socksPort, int fd);
+extern char* libxivpn_start(char* config, int socksPort, int fd);
 extern void libxivpn_stop();
 
 
@@ -20,10 +20,17 @@ JNIEXPORT jstring JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1version (JNIEnv * e
 	return s;
 }
 
-JNIEXPORT void JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1start (JNIEnv * env, jclass clazz, jstring config, jint socksPort, jint fd) {
+JNIEXPORT jstring JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1start (JNIEnv * env, jclass clazz, jstring config, jint socksPort, jint fd) {
 	const char *cConfig = (*env)->GetStringUTFChars(env, config, 0);
-	libxivpn_start(cConfig, (int)socksPort, (int)fd);
+
+	char *ret = libxivpn_start(cConfig, (int)socksPort, (int)fd);
+
 	(*env)->ReleaseStringUTFChars(env, config, cConfig);
+
+	jstring ret_jstring = (*env)->NewStringUTF(env, ret);
+	free(ret);
+
+	return ret_jstring;
 }
 
 JNIEXPORT void JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1stop (JNIEnv * env, jclass clazz) {

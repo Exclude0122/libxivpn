@@ -32,30 +32,29 @@ func libxivpn_version() *C.char {
 }
 
 //export libxivpn_start
-func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) {
+func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) *C.char {
 	config := C.GoString(cConfig)
 
 	log(fmt.Sprintln("start", config, socksPort, fd))
-
 
 	// xray
 
 	xrayConfig, err := core.LoadConfig("json", strings.NewReader(config))
 	if err != nil {
 		log("libxivpn_start xray1: " + err.Error())
-		return;
+		return C.CString("libxivpn_start load config: " + err.Error());
 	}
 
 	xrayServer, err = core.New(xrayConfig)
 	if err != nil {
 		log("libxivpn_start xray2: " + err.Error())
-		return;
+		return C.CString("libxivpn_start create core: " + err.Error());
 	}
 
 	err = xrayServer.Start()
 	if err != nil {
 		log("libxivpn_start xray3: " + err.Error())
-		return;
+		return C.CString("libxivpn_start start core: " + err.Error());
 	}
 
 	// tun2socks
@@ -69,6 +68,8 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) {
 	engine.Start()
 
 	log(fmt.Sprintln("started"))
+
+	return C.CString("")
 }
 
 //export libxivpn_stop
