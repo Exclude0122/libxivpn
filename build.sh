@@ -24,8 +24,8 @@ export TARGET=aarch64-linux-android
 
 go build -buildmode=c-shared -trimpath -v -o libxivpn_arm64.so -ldflags="-s -w -buildid="
 
-chmod +x libxivpn_arm64.so
-upx --android-shlib libxivpn_arm64.so
+# chmod +x libxivpn_arm64.so
+# upx --android-shlib libxivpn_arm64.so
 
 # x86_64
 export CGO_CFLAGS="-target x86_64-linux-android"
@@ -36,5 +36,5 @@ export TARGET=x86_64-linux-android
 
 go build -buildmode=c-shared -trimpath -v -o libxivpn_x86_64.so -ldflags="-s -w -buildid="
 
-chmod +x libxivpn_x86_64.so
-upx --android-shlib libxivpn_x86_64.so
+# chmod +x libxivpn_x86_64.so
+# upx --android-shlib libxivpn_x86_64.so
