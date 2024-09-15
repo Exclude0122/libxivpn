@@ -1,3 +1,5 @@
 *.so
 libxivpn.h
+libxivpn_arm64.h
+libxivpn_x86_64.h
 build.local.sh

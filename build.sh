@@ -1,25 +1,40 @@
 #!/bin/bash
 
-rm libxivpn.so
+rm libxivpn_x86_64.so
+rm libxivpn_arm64.so
 
 echo $NDK # Example: /home/USERNAME/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64
 
 export GOOS=android
-export GOARCH=arm64
 export CGO_ENABLED=1
 
-export CC=$NDK/bin/aarch64-linux-android21-clang
-export CXX=$NDK/bin/aarch64-linux-android21-clang++
-export TARGET=aarch64-linux-android
 export AR=$NDK/bin/llvm-ar
 export LD=$NDK/bin/ld
 export RANLIB=$NDK/bin/llvm-ranlib
 export STRIP=$TOONDKLCHAIN/bin/llvm-strip
 
-export CGO_CFLAGS="-target aarch64-linux-android"
 export CGO_LDFLAGS="-v"
 
-go build -buildmode=c-shared -trimpath -v -o libxivpn.so -ldflags="-s -w -buildid="
+# arm64
+export CGO_CFLAGS="-target aarch64-linux-android"
+export GOARCH=arm64
+export CC=$NDK/bin/aarch64-linux-android21-clang
+export CXX=$NDK/bin/aarch64-linux-android21-clang++
+export TARGET=aarch64-linux-android
 
-chmod +x libxivpn.so
-upx --android-shlib libxivpn.so
+go build -buildmode=c-shared -trimpath -v -o libxivpn_arm64.so -ldflags="-s -w -buildid="
+
+chmod +x libxivpn_arm64.so
+upx --android-shlib libxivpn_arm64.so
+
+# x86_64
+export CGO_CFLAGS="-target x86_64-linux-android"
+export GOARCH=amd64
+export CC=$NDK/bin/x86_64-linux-android21-clang
+export CXX=$NDK/bin/x86_64-linux-android21-clang++
+export TARGET=x86_64-linux-android
+
+go build -buildmode=c-shared -trimpath -v -o libxivpn_x86_64.so -ldflags="-s -w -buildid="
+
+chmod +x libxivpn_x86_64.so
+upx --android-shlib libxivpn_x86_64.so
