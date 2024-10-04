@@ -48,7 +48,17 @@ jobs:
           sha256sum libxivpn_x86_64.so > sha256.txt
           sha256sum libxivpn_arm64.so >> sha256.txt
           cat sha256.txt
+
+      - name: New Tag
+        run: echo "NEW_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
       
+      - name: Tag Repo
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -57,5 +67,6 @@ jobs:
             libxivpn_arm64.so
             sha256.txt
           name: ${{ github.sha }}
+          tag_name: ${{ env.NEW_TAG }}
 
 
