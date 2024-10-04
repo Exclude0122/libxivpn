@@ -51,14 +51,7 @@ jobs:
 
       - name: New Tag
         run: echo "NEW_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-      
-      - name: Tag Repo
-        uses: richardsimko/update-tag@v1
-        with:
-          tag_name: ${{ env.NEW_TAG }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            
+                  
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
