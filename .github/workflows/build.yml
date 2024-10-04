@@ -42,5 +42,20 @@ jobs:
         with:
           name: libxivpn_x86_64.so
           path: libxivpn_x86_64.so
+      
+      - name: Calculate SHA256
+        run: |
+          sha256sum libxivpn_x86_64.so > sha256.txt
+          sha256sum libxivpn_arm64.so >> sha256.txt
+          cat sha256.txt
+      
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            libxivpn_x86_64.so
+            libxivpn_arm64.so
+            sha256.txt
+          name: ${{ github.sha }}
 
 
