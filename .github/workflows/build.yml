@@ -61,7 +61,7 @@ jobs:
             libxivpn_x86_64.so
             libxivpn_arm64.so
             sha256.txt
-          name: ${{ github.sha }}
+          name: ${{ env.NEW_TAG }}
           tag_name: ${{ env.NEW_TAG }}
 
 
