@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Display Go version
+        run: go version
+      
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          add-to-path: false
+          ndk-version: r27
+      
+      - name: Build
+        run: ./build.sh
+        env:
+          NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+      
+      - name: Upload ARM64 Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: libxivpn_arm64.so
+          path: libxivpn_arm64.so
+      
+      - name: Upload X64_64 Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: libxivpn_x86_64.so
+          path: libxivpn_x86_64.so
+
+
