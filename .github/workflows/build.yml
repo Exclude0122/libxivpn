@@ -29,7 +29,7 @@ jobs:
       - name: Build
         run: ./build.sh
         env:
-          NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
       
       - name: Upload ARM64 Binary
         uses: actions/upload-artifact@v4
