@@ -22,7 +22,7 @@ export CC=$NDK/bin/aarch64-linux-android21-clang
 export CXX=$NDK/bin/aarch64-linux-android21-clang++
 export TARGET=aarch64-linux-android
 
-go build -buildmode=c-shared -trimpath -v -o libxivpn_arm64.so -ldflags="-s -w -buildid="
+go build -buildmode=c-shared -trimpath -o libxivpn_arm64.so -ldflags="-s -w -buildid="
 
 # chmod +x libxivpn_arm64.so
 # upx --android-shlib libxivpn_arm64.so
