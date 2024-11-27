@@ -8,7 +8,9 @@ package main
 import "C"
 import (
 	"fmt"
+	"runtime"
 	"strings"
+	"syscall"
 
 	"bufio"
 	"os"
@@ -27,6 +29,13 @@ func log(msg string) {
 	C.libxivpn_log(cString)
 }
 
+func closeFd(fd int) {
+	err := syscall.Close(fd)
+	if err != nil {
+		log("close fd: " + err.Error())
+	}
+}
+
 //export libxivpn_version
 func libxivpn_version() *C.char {
 	return C.CString(strings.Join(core.VersionStatement(), "\n"))
@@ -41,7 +50,11 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) *C.char {
 	defer func() {
 		r := recover()
 		if r != nil {
+			b := make([]byte, 4096)
+			n := runtime.Stack(b, false)
+			s := string(b[:n])
 			log(fmt.Sprintf("panic: %v", r))
+			log(fmt.Sprintf("panic: %v", s))
 		}
 	}()
 
@@ -49,18 +62,22 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) *C.char {
 
 	xrayConfig, err := core.LoadConfig("json", strings.NewReader(config))
 	if err != nil {
+		// close fd manually if xray fails to start
+		closeFd(int(fd))
 		log("libxivpn_start xray1: " + err.Error())
 		return C.CString("libxivpn_start load config: " + err.Error())
 	}
 
 	xrayServer, err = core.New(xrayConfig)
 	if err != nil {
+		closeFd(int(fd))
 		log("libxivpn_start xray2: " + err.Error())
 		return C.CString("libxivpn_start create core: " + err.Error())
 	}
 
 	err = xrayServer.Start()
 	if err != nil {
+		closeFd(int(fd))
 		log("libxivpn_start xray3: " + err.Error())
 		return C.CString("libxivpn_start start core: " + err.Error())
 	}
@@ -85,12 +102,20 @@ func libxivpn_stop() {
 	defer func() {
 		r := recover()
 		if r != nil {
+			b := make([]byte, 4096)
+			n := runtime.Stack(b, false)
+			s := string(b[:n])
 			log(fmt.Sprintf("panic: %v", r))
+			log(fmt.Sprintf("panic: %v", s))
 		}
 	}()
 
 	log("stop")
+
+	// engine.Stop() will close fd
+	// it has no effect if engine is never started
 	engine.Stop()
+
 	if xrayServer != nil {
 		xrayServer.Close()
 		xrayServer = nil

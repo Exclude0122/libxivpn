@@ -94,8 +94,8 @@ github.com/vishvananda/netns v0.0.5 h1:DfiHV+j8bA32MFM7bfEunvT8IAqQ/NzSJHtcmW5zd
 github.com/vishvananda/netns v0.0.5/go.mod h1:SpkAiCQRtJ6TvvxPnOSyH3BMl6unz3xZlaprSwhNNJM=
 github.com/xjasonlyu/tun2socks/v2 v2.5.2 h1:rbfaTSLzqMezs4Qya/EL777/uMhtyE57SIV7sa1m/Pc=
 github.com/xjasonlyu/tun2socks/v2 v2.5.2/go.mod h1:BzpNKVpWyi+yC8Cuo4bFVGtjtEX38IRhnc+A9CH9sZA=
-github.com/xtls/reality v0.0.0-20240909153216-e26ae2305463 h1:g1Cj7d+my6k/HHxLAyxPwyX8i7FGRr6ulBDMkBzg2BM=
-github.com/xtls/reality v0.0.0-20240909153216-e26ae2305463/go.mod h1:BjIOLmkEEtAgloAiVUcYj0Mt+YU00JARZw8AEU0IwAg=
+github.com/xtls/reality v0.0.0-20240712055506-48f0b2d5ed6d h1:+B97uD9uHLgAAulhigmys4BVwZZypzK7gPN3WtpgRJg=
+github.com/xtls/reality v0.0.0-20240712055506-48f0b2d5ed6d/go.mod h1:dm4y/1QwzjGaK17ofi0Vs6NpKAHegZky8qk6J2JJZAE=
 github.com/xtls/xray-core v1.8.25-0.20241121054707-513f18bf531e h1:J5sTv0Sw+BonaI+rBh4Jkw9BfBqDjfAts81/HbIaqNg=
 github.com/xtls/xray-core v1.8.25-0.20241121054707-513f18bf531e/go.mod h1:wByClH1yrH8I611sREjG62gxbP5hFtdAWYJfydQF/zI=
 github.com/xyproto/randomstring v1.0.5 h1:YtlWPoRdgMu3NZtP45drfy1GKoojuR7hmRcnhZqKjWU=
