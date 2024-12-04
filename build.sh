@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# usage: ./build [all / arm64 / x86_64]
+
+arch=$1
+if [ "$arch" = "" ]
+then
+    arch="all"
+fi
+
 rm libxivpn_x86_64.so
 rm libxivpn_arm64.so
 
@@ -16,25 +24,35 @@ export STRIP=$TOONDKLCHAIN/bin/llvm-strip
 export CGO_LDFLAGS="-v"
 
 # arm64
-export CGO_CFLAGS="-target aarch64-linux-android"
-export GOARCH=arm64
-export CC=$NDK/bin/aarch64-linux-android21-clang
-export CXX=$NDK/bin/aarch64-linux-android21-clang++
-export TARGET=aarch64-linux-android
+if [ "$arch" = "all" ] || [ "$arch" = "arm64" ]
+then
+    echo "Builing arm64"
 
-go build -buildmode=c-shared -trimpath -o libxivpn_arm64.so -ldflags="-s -w -buildid=" -buildvcs=false
+    export CGO_CFLAGS="-target aarch64-linux-android"
+    export GOARCH=arm64
+    export CC=$NDK/bin/aarch64-linux-android21-clang
+    export CXX=$NDK/bin/aarch64-linux-android21-clang++
+    export TARGET=aarch64-linux-android
 
-# chmod +x libxivpn_arm64.so
-# upx --android-shlib libxivpn_arm64.so
+    go build -buildmode=c-shared -trimpath -o libxivpn_arm64.so -ldflags="-s -w -buildid=" -buildvcs=false
+
+    # chmod +x libxivpn_arm64.so
+    # upx --android-shlib libxivpn_arm64.so
+fi
 
 # x86_64
-export CGO_CFLAGS="-target x86_64-linux-android"
-export GOARCH=amd64
-export CC=$NDK/bin/x86_64-linux-android21-clang
-export CXX=$NDK/bin/x86_64-linux-android21-clang++
-export TARGET=x86_64-linux-android
+if [ "$arch" = "all" ] || [ "$arch" = "x86_64" ]
+then
+    echo "Builing x86_64"
 
-go build -buildmode=c-shared -trimpath -o libxivpn_x86_64.so -ldflags="-s -w -buildid=" -buildvcs=false
+    export CGO_CFLAGS="-target x86_64-linux-android"
+    export GOARCH=amd64
+    export CC=$NDK/bin/x86_64-linux-android21-clang
+    export CXX=$NDK/bin/x86_64-linux-android21-clang++
+    export TARGET=x86_64-linux-android
 
-# chmod +x libxivpn_x86_64.so
-# upx --android-shlib libxivpn_x86_64.so
+    go build -buildmode=c-shared -trimpath -o libxivpn_x86_64.so -ldflags="-s -w -buildid=" -buildvcs=false
+
+    # chmod +x libxivpn_x86_64.so
+    # upx --android-shlib libxivpn_x86_64.so
+fi
