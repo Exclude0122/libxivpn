@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/xjasonlyu/tun2socks/v2 v2.5.2
-	github.com/xtls/xray-core v1.8.25-0.20241121054707-513f18bf531e
+	github.com/xtls/xray-core v1.8.25-0.20241130041635-98a72b6fb49b
 )
 
 require (
