@@ -23,10 +23,29 @@ import (
 )
 
 var xrayServer core.Server
+var logFile *os.File
 
 func log(msg string) {
 	cString := C.CString(msg)
 	C.libxivpn_log(cString)
+
+	if logFile != nil {
+
+		_, err := logFile.WriteString("[" + time.Now().Format(time.DateTime) + "] " + msg + "\n")
+		if err != nil {
+			C.libxivpn_log(C.CString("write log file: " + err.Error()))
+			logFile.Close()
+			logFile = nil
+			return
+		}
+		err = logFile.Sync()
+		if err != nil {
+			C.libxivpn_log(C.CString("sync log file: " + err.Error()))
+			logFile.Close()
+			logFile = nil
+			return
+		}
+	}
 }
 
 func closeFd(fd int) {
@@ -42,8 +61,26 @@ func libxivpn_version() *C.char {
 }
 
 //export libxivpn_start
-func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) *C.char {
+func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char) *C.char {
 	config := C.GoString(cConfig)
+	logFileName := C.GoString(cLogFile)
+
+	if logFile != nil {
+		err := logFile.Close()
+		if err != nil {
+			log("close log file 1: " + err.Error())
+			return C.CString("close log file 1: " + err.Error())
+		}
+	}
+
+	if logFileName != "" {
+		var err error
+		logFile, err = os.Create(logFileName)
+		if err != nil {
+			log("create log file: " + err.Error())
+			return C.CString("create log file: " + err.Error())
+		}
+	}
 
 	log(fmt.Sprintln("start", config, socksPort, fd))
 
@@ -99,6 +136,11 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int) *C.char {
 
 //export libxivpn_stop
 func libxivpn_stop() {
+	defer func() {
+		if logFile != nil {
+			logFile.Close()
+		}
+	}()
 	defer func() {
 		r := recover()
 		if r != nil {
