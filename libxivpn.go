@@ -61,12 +61,20 @@ func libxivpn_version() *C.char {
 }
 
 //export libxivpn_start
-func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char) *C.char {
+func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char, cAsset *C.char) *C.char {
 	config := C.GoString(cConfig)
 	logFileName := C.GoString(cLogFile)
+	asset := C.GoString(cAsset)
+
+	log("set env XRAY_LOCATION_ASSET: " + asset)
+	err := os.Setenv("XRAY_LOCATION_ASSET", asset)
+	if err != nil {
+		log("error set env: " + err.Error())
+	}
 
 	if logFile != nil {
 		err := logFile.Close()
+		logFile = nil
 		if err != nil {
 			log("close log file 1: " + err.Error())
 			return C.CString("close log file 1: " + err.Error())
@@ -139,6 +147,7 @@ func libxivpn_stop() {
 	defer func() {
 		if logFile != nil {
 			logFile.Close()
+			logFile = nil
 		}
 	}()
 	defer func() {

@@ -8,7 +8,7 @@ void libxivpn_log(char * msg) {
 }
 
 extern char* libxivpn_version();
-extern char* libxivpn_start(char* config, int socksPort, int fd, char* logFile);
+extern char* libxivpn_start(char* config, int socksPort, int fd, char* logFile, char* asset);
 extern void libxivpn_stop();
 
 
@@ -20,14 +20,16 @@ JNIEXPORT jstring JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1version (JNIEnv * e
 	return s;
 }
 
-JNIEXPORT jstring JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1start (JNIEnv * env, jclass clazz, jstring config, jint socksPort, jint fd, jstring logFile) {
+JNIEXPORT jstring JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1start (JNIEnv * env, jclass clazz, jstring config, jint socksPort, jint fd, jstring logFile, jstring asset) {
 	const char *cConfig = (*env)->GetStringUTFChars(env, config, 0);
 	const char *cLogFile = (*env)->GetStringUTFChars(env, logFile, 0);
+	const char *cAsset = (*env)->GetStringUTFChars(env, asset, 0);
 
-	char *ret = libxivpn_start(cConfig, (int)socksPort, (int)fd, cLogFile);
+	char *ret = libxivpn_start(cConfig, (int)socksPort, (int)fd, cLogFile, cAsset);
 
 	(*env)->ReleaseStringUTFChars(env, config, cConfig);
 	(*env)->ReleaseStringUTFChars(env, config, cLogFile);
+	(*env)->ReleaseStringUTFChars(env, config, cAsset);
 
 	jstring ret_jstring = (*env)->NewStringUTF(env, ret);
 	free(ret);
