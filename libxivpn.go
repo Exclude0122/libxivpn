@@ -163,7 +163,7 @@ func libxivpn_stop() {
 
 	log("stop")
 
-	// engine.Stop() will close fd
+	// engine.Stop() will not close fd
 	// it has no effect if engine is never started
 	engine.Stop()
 

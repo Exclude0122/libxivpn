@@ -66,3 +66,5 @@ require (
 	gvisor.dev/gvisor v0.0.0-20250127185940-f6673e13e290 // indirect
 	lukechampine.com/blake3 v1.3.0 // indirect
 )
+
+replace github.com/xjasonlyu/tun2socks/v2 => github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250205012752-b9a8e2a6eff3
