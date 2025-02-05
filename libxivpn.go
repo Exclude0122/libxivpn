@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"syscall"
 
 	"bufio"
 	"os"
@@ -45,13 +44,6 @@ func log(msg string) {
 			logFile = nil
 			return
 		}
-	}
-}
-
-func closeFd(fd int) {
-	err := syscall.Close(fd)
-	if err != nil {
-		log("close fd: " + err.Error())
 	}
 }
 
@@ -107,22 +99,18 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char
 
 	xrayConfig, err := core.LoadConfig("json", strings.NewReader(config))
 	if err != nil {
-		// close fd manually if xray fails to start
-		closeFd(int(fd))
 		log("libxivpn_start xray1: " + err.Error())
 		return C.CString("libxivpn_start load config: " + err.Error())
 	}
 
 	xrayServer, err = core.New(xrayConfig)
 	if err != nil {
-		closeFd(int(fd))
 		log("libxivpn_start xray2: " + err.Error())
 		return C.CString("libxivpn_start create core: " + err.Error())
 	}
 
 	err = xrayServer.Start()
 	if err != nil {
-		closeFd(int(fd))
 		log("libxivpn_start xray3: " + err.Error())
 		return C.CString("libxivpn_start start core: " + err.Error())
 	}
