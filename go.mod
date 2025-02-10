@@ -1,6 +1,6 @@
 module libxivpn
 
-go 1.23.3
+go 1.23.6
 
 require (
 	github.com/xjasonlyu/tun2socks/v2 v2.5.3-0.20250128035302-302622f84b23
