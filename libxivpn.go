@@ -1,15 +1,18 @@
 package main
 
 /*
-
 #include "libxivpn_jni.h"
 
 */
 import "C"
 import (
+	"context"
 	"fmt"
+	"net"
 	"runtime"
 	"strings"
+	"sync"
+	"syscall"
 
 	"bufio"
 	"os"
@@ -19,10 +22,12 @@ import (
 	"github.com/xjasonlyu/tun2socks/v2/engine"
 	"github.com/xtls/xray-core/core"
 	_ "github.com/xtls/xray-core/main/distro/all"
+	"github.com/xtls/xray-core/transport/internet"
 )
 
 var xrayServer core.Server
 var logFile *os.File
+var registerControllerOnce sync.Once
 
 func log(msg string) {
 	cString := C.CString(msg)
@@ -64,6 +69,7 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char
 		log("error set env: " + err.Error())
 	}
 
+	// log file
 	if logFile != nil {
 		err := logFile.Close()
 		logFile = nil
@@ -81,6 +87,52 @@ func libxivpn_start(cConfig *C.char, socksPort C.int, fd C.int, cLogFile *C.char
 			return C.CString("create log file: " + err.Error())
 		}
 	}
+
+	// register socket controller
+	registerControllerOnce.Do(func() {
+		log("register controller once")
+
+		err := internet.RegisterDialerController(func(network, address string, conn syscall.RawConn) error {
+			return conn.Control(func(fd uintptr) {
+				log(fmt.Sprintf("protect dialer %s %s %d", network, address, fd))
+				C.libxivpn_protect(C.int(fd))
+			})
+		})
+		if err != nil {
+			log("failed to register dialer controller")
+		}
+
+		err = internet.RegisterListenerController(func(network, address string, conn syscall.RawConn) error {
+			return conn.Control(func(fd uintptr) {
+				log(fmt.Sprintf("protect listener %s %s %d", network, address, fd))
+				C.libxivpn_protect(C.int(fd))
+			})
+		})
+		if err != nil {
+			log("failed to register dialer controller")
+		}
+
+		// copied from https://github.com/XTLS/libXray/blob/main/dns/dns_android.go
+		net.DefaultResolver = &net.Resolver{
+			PreferGo: true,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				dialer := &net.Dialer{
+					Timeout: time.Second * 16,
+				}
+
+				dialer.Control = func(network, address string, c syscall.RawConn) error {
+					return c.Control(func(fd uintptr) {
+						C.libxivpn_protect(C.int(fd))
+					})
+				}
+
+				log("resolver dial " + network + " " + address)
+
+				return dialer.DialContext(ctx, network, "8.8.8.8:53")
+			},
+		}
+
+	})
 
 	log(fmt.Sprintln("start", config, socksPort, fd))
 
