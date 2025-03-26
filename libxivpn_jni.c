@@ -22,7 +22,7 @@ void libxivpn_log(char * msg) {
 }
 
 static void env_destructor(void *env) {
-	__android_log_print(ANDROID_LOG_DEBUG, "libxivpn", "detech current thread: %d", gettid());
+	__android_log_print(ANDROID_LOG_DEBUG, "libxivpn", "detach current thread: %d", gettid());
 	if ((*jvm)->DetachCurrentThread(jvm) != JNI_OK) {
 		__android_log_write(ANDROID_LOG_ERROR, "libxivpn", "failed to detach current thread");
 	}
@@ -32,17 +32,19 @@ JNIEnv* get_jni_env() {
 	JNIEnv *env;
 	jint ret = (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_6);
 	if (ret != JNI_OK) {
+
 		if (ret != JNI_EDETACHED) {
 			__android_log_write(ANDROID_LOG_FATAL, "libxivpn", "failed to get thread env");
 		}
+
 		__android_log_print(ANDROID_LOG_DEBUG, "libxivpn", "attach current thread: %d", gettid());
 		if ((*jvm)->AttachCurrentThread(jvm, &env, NULL) != JNI_OK) {
 			__android_log_write(ANDROID_LOG_FATAL, "libxivpn", "failed to attach current thread");
 		}
-		if (pthread_key_create(&jnienvs, env_destructor) != 0) {
-			__android_log_write(ANDROID_LOG_FATAL,  "libxivpn", "failed to initialize jnienvs thread local storage");
+		
+		if (pthread_setspecific(jnienvs, env) != 0) {
+			__android_log_write(ANDROID_LOG_FATAL, "libxivpn", "failed to set jnienvs thread local storage");
 		}
-		pthread_setspecific(jnienvs, env);
 	}
 	return env;
 }
@@ -120,6 +122,10 @@ JNIEXPORT void JNICALL Java_cn_gov_xivpn2_LibXivpn_xivpn_1init (JNIEnv * env , j
 	if (clazz == NULL) {
 		__android_log_write(ANDROID_LOG_ERROR, "libxivpn", "init: failed to get method id");
 		return;
+	}
+
+	if (pthread_key_create(&jnienvs, env_destructor) != 0) {
+		__android_log_write(ANDROID_LOG_FATAL,  "libxivpn", "failed to initialize jnienvs thread local storage");
 	}
 
 }
