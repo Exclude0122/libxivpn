@@ -5,3 +5,5 @@ libxivpn_x86_64.h
 build.local.sh
 .vscode
 .idea
+go
+go*.tar.gz

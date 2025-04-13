@@ -8,7 +8,7 @@
 - Install golang
 - Install `upx`
 - Set environment variable `NDK` to the location of your toolchain (for example `/home/USERNAME/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64`)
-- Run `./build.sh`
+- Run `./build.sh all patch`
 
 ## Vscode example configuration
 `.vscode/c_cpp_properties.json`
