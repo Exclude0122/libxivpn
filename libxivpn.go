@@ -208,7 +208,12 @@ func libxivpn_stop() {
 	engine.Stop()
 
 	if xrayServer != nil {
-		xrayServer.Close()
+		err := xrayServer.Close()
+		if err != nil {
+			log(fmt.Sprintf("xray server close error: %v", err.Error()))
+		} else {
+			log("xray server closed")
+		}
 		xrayServer = nil
 	}
 }
