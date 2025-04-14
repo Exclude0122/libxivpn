@@ -13,7 +13,7 @@ if [ "$2" = "patch" ]; then
     tar -C ./ -xzf go1.24.2.linux-amd64.tar.gz
     mv go .go
 
-    patch -d go -p1 -b < goruntime-boottime-over-monotonic.diff
+    patch -d .go -p1 -b < goruntime-boottime-over-monotonic.diff
   fi
 
   export PATH="$(pwd)/.go/bin":$PATH
