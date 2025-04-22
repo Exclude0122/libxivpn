@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/xjasonlyu/tun2socks/v2/engine"
+
 	"github.com/xtls/xray-core/core"
 	_ "github.com/xtls/xray-core/main/distro/all"
 	"github.com/xtls/xray-core/transport/internet"
