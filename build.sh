@@ -29,8 +29,8 @@ then
     arch="all"
 fi
 
-rm libxivpn_x86_64.so
-rm libxivpn_arm64.so
+rm libxivpn_arm64
+rm libxivpn_x86_64
 
 echo $NDK # Example: /home/USERNAME/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64
 
@@ -49,13 +49,13 @@ if [ "$arch" = "all" ] || [ "$arch" = "arm64" ]
 then
     echo "Builing arm64"
 
-    export CGO_CFLAGS="-target aarch64-linux-android"
+    export CGO_CFLAGS="-target aarch64-linux-android21"
     export GOARCH=arm64
     export CC=$NDK/bin/aarch64-linux-android21-clang
     export CXX=$NDK/bin/aarch64-linux-android21-clang++
     export TARGET=aarch64-linux-android
 
-    go build -buildmode=c-shared -trimpath -o libxivpn_arm64.so -ldflags="-s -w -buildid=" -buildvcs=false
+    go build -buildmode=pie -trimpath -o libxivpn_arm64 -ldflags="-s -w -buildid=" -buildvcs=false
 
     # chmod +x libxivpn_arm64.so
     # upx --android-shlib libxivpn_arm64.so
@@ -66,13 +66,13 @@ if [ "$arch" = "all" ] || [ "$arch" = "x86_64" ]
 then
     echo "Builing x86_64"
 
-    export CGO_CFLAGS="-target x86_64-linux-android"
+    export CGO_CFLAGS="-target x86_64-linux-android21"
     export GOARCH=amd64
     export CC=$NDK/bin/x86_64-linux-android21-clang
     export CXX=$NDK/bin/x86_64-linux-android21-clang++
     export TARGET=x86_64-linux-android
 
-    go build -buildmode=c-shared -trimpath -o libxivpn_x86_64.so -ldflags="-s -w -buildid=" -buildvcs=false
+    go build -buildmode=pie -trimpath -o libxivpn_x86_64 -ldflags="-s -w -buildid=" -buildvcs=false
 
     # chmod +x libxivpn_x86_64.so
     # upx --android-shlib libxivpn_x86_64.so
