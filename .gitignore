@@ -7,3 +7,5 @@ build.local.sh
 .idea
 .go
 go*.tar.gz
+libxivpn_arm64
+libxivpn_x86_64
