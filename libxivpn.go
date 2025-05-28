@@ -8,7 +8,6 @@ import (
 	"sync"
 	"syscall"
 
-	"os"
 	"strconv"
 	"time"
 
@@ -20,51 +19,13 @@ import (
 )
 
 var xrayServer core.Server
-var logFile *os.File
 var registerControllerOnce sync.Once
-
-func log(msg string) {
-	fmt.Fprintln(os.Stderr, "libxivpn", time.Now().Format(time.DateTime), msg)
-
-	if logFile != nil {
-		_, err := logFile.WriteString("[" + time.Now().Format(time.DateTime) + "] " + msg + "\n")
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "write log file: "+err.Error())
-			logFile.Close()
-			logFile = nil
-			return
-		}
-		err = logFile.Sync()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "sync log file: "+err.Error())
-			logFile.Close()
-			logFile = nil
-			return
-		}
-	}
-}
 
 func libxivpn_version() string {
 	return strings.Join(core.VersionStatement(), "\n")
 }
 
-func libxivpn_start(config string, socksPort int, fd_ int, logFilePath string, asset string) error {
-	if logFilePath != "" {
-		var err error
-		logFile, err = os.Create(logFilePath)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "linxivpn", time.Now().Format(time.DateTime), "create log file: "+err.Error())
-			return err
-		}
-	}
-
-	log("set env XRAY_LOCATION_ASSET: " + asset)
-	err := os.Setenv("XRAY_LOCATION_ASSET", asset)
-	if err != nil {
-		log("error set env: " + err.Error())
-		return err
-	}
-
+func libxivpn_start(config string, socksPort int, fd_ int) error {
 	// register socket controller
 	registerControllerOnce.Do(func() {
 		log("register controller once")
@@ -141,15 +102,10 @@ func libxivpn_start(config string, socksPort int, fd_ int, logFilePath string, a
 		UDPTimeout: time.Second * 10,
 	})
 	engine.Start()
-
-	log(fmt.Sprintln("started"))
-
 	return nil
 }
 
 func libxivpn_stop() {
-	log("stop")
-
 	// engine.Stop() will not close fd
 	// it has no effect if engine is never started
 	engine.Stop()
