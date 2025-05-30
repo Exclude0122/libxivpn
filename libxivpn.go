@@ -60,6 +60,7 @@ func libxivpn_start(config string, socksPort int, fd_ int) error {
 
 				dialer.Control = func(network, address string, c syscall.RawConn) error {
 					return c.Control(func(fd uintptr) {
+						log(fmt.Sprintf("protect resolver %s %s %d", network, address, fd))
 						protectFd(int(fd))
 					})
 				}
