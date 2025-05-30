@@ -15,22 +15,23 @@ import (
 	"time"
 )
 
-var ipcconn *net.UnixConn
+var ipcConn *net.UnixConn
 
 func log(msg string) {
 	fmt.Fprintln(os.Stderr, "libxivpn", time.Now().Format(time.DateTime), msg)
 }
 
-func ipcfd() int {
-	ipcfile, _ := ipcconn.File()
+func ipcFd() int {
+	ipcfile, _ := ipcConn.File()
 	return int(ipcfile.Fd())
 }
 
+// Receive fd from ipcConn
 // https://stackoverflow.com/questions/47644667/is-it-possible-to-use-go-to-send-and-receive-file-descriptors-over-unix-domain-s
-func recv_fd() int {
-	l_msg := syscall.CmsgSpace(1 * 4)
-	buf := make([]byte, l_msg)
-	_, _, _, _, err := syscall.Recvmsg(ipcfd(), nil, buf, 0)
+func recvFd() int {
+	buffer := syscall.CmsgSpace(1 * 4)
+	buf := make([]byte, buffer)
+	_, _, _, _, err := syscall.Recvmsg(ipcFd(), nil, buf, 0)
 	if err != nil {
 		panic(fmt.Errorf("recv from ipc conn: %w", err))
 	}
@@ -44,6 +45,9 @@ func recv_fd() int {
 	}
 
 	fds, err := syscall.ParseUnixRights(&msgs[0])
+	if err != nil {
+		panic("parse unix rights: " + err.Error())
+	}
 	if len(fds) != 1 {
 		panic(fmt.Errorf("expect 1 fd, found %d", len(fds)))
 	}
@@ -51,25 +55,25 @@ func recv_fd() int {
 	return fds[0]
 }
 
-var protect_lock sync.Mutex
+var protectLock sync.Mutex
 
 func protectFd(fd int) {
 	rights := syscall.UnixRights(fd)
 
-	protect_lock.Lock()
+	protectLock.Lock()
 
-	err := syscall.Sendmsg(ipcfd(), []byte{0}, rights, nil, 0)
+	err := syscall.Sendmsg(ipcFd(), []byte{0}, rights, nil, 0)
 	if err != nil {
 		panic(fmt.Errorf("send to ipc conn: %w", err))
 	}
 
 	var buf [1]byte
-	_, _, _, _, err = syscall.Recvmsg(ipcfd(), buf[:], nil, 0)
+	_, _, _, _, err = syscall.Recvmsg(ipcFd(), buf[:], nil, 0)
 	if err != nil {
 		panic(fmt.Errorf("recv from ipc conn: %w", err))
 	}
 
-	protect_lock.Unlock()
+	protectLock.Unlock()
 }
 
 func main() {
@@ -78,14 +82,14 @@ func main() {
 		panic(fmt.Errorf("read config.json: %w", err))
 	}
 
-	ipcconn, err = net.DialUnix("unix", nil, &net.UnixAddr{Name: os.Getenv("IPC_PATH"), Net: "unix"})
+	ipcConn, err = net.DialUnix("unix", nil, &net.UnixAddr{Name: os.Getenv("IPC_PATH"), Net: "unix"})
 	if err != nil {
 		panic(fmt.Errorf("dial ipc conn: %w", err))
 	}
 
-	tunfd := recv_fd()
+	tunFd := recvFd()
 
-	err = libxivpn_start(string(config), 18964, tunfd)
+	err = libxivpn_start(string(config), 18964, tunFd)
 	if err != nil {
 		panic(fmt.Errorf("start libxivpn: %w", err))
 	}
