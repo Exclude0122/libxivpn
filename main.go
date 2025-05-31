@@ -58,15 +58,11 @@ func recvFd() int {
 }
 
 var ipcWriteLock sync.Mutex
-var protectLock sync.Mutex
 var protectDone = make(chan int)
 
 func protectFd(fd uintptr) {
 	ipcWriteLock.Lock()
 	defer ipcWriteLock.Unlock()
-
-	protectLock.Lock()
-	defer protectLock.Unlock()
 
 	log(fmt.Sprintf("protectFd %d start", fd))
 
