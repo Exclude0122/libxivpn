@@ -6,10 +6,12 @@ package main
 import "C"
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -55,25 +57,32 @@ func recvFd() int {
 	return fds[0]
 }
 
+var ipcWriteLock sync.Mutex
 var protectLock sync.Mutex
+var protectDone = make(chan int)
 
 func protectFd(fd uintptr) {
-	rights := syscall.UnixRights(int(fd))
+	ipcWriteLock.Lock()
+	defer ipcWriteLock.Unlock()
 
 	protectLock.Lock()
+	defer protectLock.Unlock()
 
-	err := syscall.Sendmsg(ipcFd(), []byte{0}, rights, nil, 0)
+	log(fmt.Sprintf("protectFd %d start", fd))
+
+	rights := syscall.UnixRights(int(fd))
+
+	err := syscall.Sendmsg(ipcFd(), []byte("protect\n"), rights, nil, 0)
 	if err != nil {
 		panic(fmt.Errorf("send to ipc conn: %w", err))
 	}
 
-	var buf [1]byte
-	_, _, _, _, err = syscall.Recvmsg(ipcFd(), buf[:], nil, 0)
-	if err != nil {
-		panic(fmt.Errorf("recv from ipc conn: %w", err))
-	}
+	log(fmt.Sprintf("protectFd %d waiting ack", fd))
 
-	protectLock.Unlock()
+	<-protectDone // wait for protect to finish
+
+	log(fmt.Sprintf("protectFd %d end", fd))
+
 }
 
 func main() {
@@ -87,14 +96,64 @@ func main() {
 		panic(fmt.Errorf("dial ipc conn: %w", err))
 	}
 
+	log("ipc connected")
+
 	tunFd := recvFd()
 
-	err = libxivpn_start(string(config), 18964, tunFd)
-	if err != nil {
-		panic(fmt.Errorf("start libxivpn: %w", err))
-	}
+	log(fmt.Sprintf("tun fd %d", tunFd))
 
-	fmt.Scanln()
+	go func() {
+		log("xray starting")
+		err = libxivpn_start(string(config), 18964, tunFd)
+		if err != nil {
+			panic(fmt.Errorf("start libxivpn: %w", err))
+		}
+		log("xray started")
+	}()
+
+	// hancle ipc packets
+
+	scanner := bufio.NewScanner(ipcConn)
+
+ipcLoop:
+	for {
+		log("ipc loop")
+
+		if !scanner.Scan() {
+			if scanner.Err() != nil {
+				panic("ipc scan: " + scanner.Err().Error())
+			}
+			break
+		}
+
+		line := scanner.Text()
+
+		splits := strings.Split(line, " ")
+
+		log(fmt.Sprintf("ipc packet: %v", splits))
+
+		switch splits[0] {
+
+		case "ping":
+
+			ipcWriteLock.Lock()
+			_, err := ipcConn.Write([]byte("pong\n"))
+			if err != nil {
+				panic("ipc write: " + err.Error())
+			}
+			ipcWriteLock.Unlock()
+
+		case "pong":
+			// ignored
+
+		case "protect_ack":
+			protectDone <- 1
+
+		case "stop":
+			break ipcLoop
+
+		}
+	}
 
 	log("stop libxivpn")
 	libxivpn_stop()
