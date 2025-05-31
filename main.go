@@ -57,8 +57,8 @@ func recvFd() int {
 
 var protectLock sync.Mutex
 
-func protectFd(fd int) {
-	rights := syscall.UnixRights(fd)
+func protectFd(fd uintptr) {
+	rights := syscall.UnixRights(int(fd))
 
 	protectLock.Lock()
 

@@ -1,5 +1,5 @@
-github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250422013308-d3ffcae63b4b h1:wuY0dmST8FjrpSaHY+6QjEq04olG5xiIpqmBPirMyKw=
-github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250422013308-d3ffcae63b4b/go.mod h1:x2eW67BvFUYPEegNcugyED+Hyq6tf9IuRoQ+01LSeb0=
+github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250531103205-a47c1266324b h1:FXcXYqn7GEDggrdgdvwu5jv+7RJZpdTJaT/Rm6Fz5jE=
+github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250531103205-a47c1266324b/go.mod h1:35AwqxIxnMkfBfT0UJ1Lku7PZm2ZiZJ8sxHyp0gt1yw=
 github.com/OmarTariq612/goech v0.0.0-20240405204721-8e2e1dafd3a0 h1:Wo41lDOevRJSGpevP+8Pk5bANX7fJacO2w04aqLiC5I=
 github.com/OmarTariq612/goech v0.0.0-20240405204721-8e2e1dafd3a0/go.mod h1:FVGavL/QEBQDcBpr3fAojoK17xX5k9bicBphrOpP7uM=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
@@ -166,7 +166,7 @@ gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C
 gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c h1:m/r7OM+Y2Ty1sgBQ7Qb27VgIMBW8ZZhT4gLnUyDIhzI=
-gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c/go.mod h1:3r5CMtNQMKIvBlrmM9xWUNamjKBYPOWyXOjmg5Kts3g=
+gvisor.dev/gvisor v0.0.0-20250523182742-eede7a881b20 h1:0DxLu8hxI1OGp1qVRPqNd+2k1a7hMNUNqbZG0IrtKlM=
+gvisor.dev/gvisor v0.0.0-20250523182742-eede7a881b20/go.mod h1:3r5CMtNQMKIvBlrmM9xWUNamjKBYPOWyXOjmg5Kts3g=
 lukechampine.com/blake3 v1.4.1 h1:I3Smz7gso8w4/TunLKec6K2fn+kyKtDxr/xcQEN84Wg=
 lukechampine.com/blake3 v1.4.1/go.mod h1:QFosUxmjB8mnrWFSNwKmvxHpfY72bmD2tQ0kBMM3kwo=
