@@ -62,8 +62,8 @@ require (
 	google.golang.org/grpc v1.72.2 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c // indirect
+	gvisor.dev/gvisor v0.0.0-20250523182742-eede7a881b20 // indirect
 	lukechampine.com/blake3 v1.4.1 // indirect
 )
 
-replace github.com/xjasonlyu/tun2socks/v2 => github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250422013308-d3ffcae63b4b
+replace github.com/xjasonlyu/tun2socks/v2 => github.com/Exclude0122/tun2socks/v2 v2.5.3-0.20250531103205-a47c1266324b
