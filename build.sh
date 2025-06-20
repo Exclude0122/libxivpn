@@ -31,6 +31,7 @@ fi
 
 rm libxivpn_arm64.so
 rm libxivpn_x86_64.so
+rm libxivpn_armv7a.so
 
 echo $NDK # Example: /home/USERNAME/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64
 
@@ -76,4 +77,22 @@ then
 
     # chmod +x libxivpn_x86_64.so
     # upx --android-shlib libxivpn_x86_64.so
+fi
+
+# armv7a
+if [ "$arch" = "all" ] || [ "$arch" = "armv7a" ]
+then
+    echo "Builing armv7a"
+
+    export CGO_CFLAGS="-target armv7a-linux-androideabi21"
+    export GOARCH=arm
+    export GOARM=7
+    export CC=$NDK/bin/armv7a-linux-androideabi21-clang
+    export CXX=$NDK/bin/armv7a-linux-androideabi21-clang++
+    export TARGET=armv7a-linux-android
+
+    go build -buildmode=pie -trimpath -o libxivpn_armv7a.so -ldflags="-s -w -buildid=" -buildvcs=false
+
+    # chmod +x libxivpn_armv7a.so
+    # upx --android-shlib libxivpn_armv7a.so
 fi
