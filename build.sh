@@ -8,9 +8,9 @@ if [ "$2" = "patch" ]; then
   if [ ! -d ".go" ]; then
     echo "Downloading go..."
 
-    rm go1.24.3.linux-amd64.tar.gz
-    curl -L https://go.dev/dl/go1.24.3.linux-amd64.tar.gz > go1.24.3.linux-amd64.tar.gz
-    tar -C ./ -xzf go1.24.3.linux-amd64.tar.gz
+    rm go1.25.1.linux-amd64.tar.gz
+    curl -L https://go.dev/dl/go1.25.1.linux-amd64.tar.gz > go1.25.1.linux-amd64.tar.gz
+    tar -C ./ -xzf go1.25.1.linux-amd64.tar.gz
     mv go .go
 
     patch -d .go -p1 -b < goruntime-boottime-over-monotonic.diff
