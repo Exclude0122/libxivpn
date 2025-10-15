@@ -82,6 +82,9 @@ func protectFd(fd uintptr) {
 }
 
 func main() {
+	log("libxivpn")
+	log(libxivpn_version())
+
 	config, err := os.ReadFile(filepath.Join(os.Getenv("XRAY_LOCATION_ASSET"), "config.json"))
 	if err != nil {
 		panic(fmt.Errorf("read config.json: %w", err))
