@@ -14,6 +14,78 @@
 
 Read `IPC.md`
 
+
+## How to debug
+
+0. Modify `build.sh` and temporarily remove `-buildmode=pie -trimpath` and `-ldflags="-s -w"`
+
+1. Clone https://github.com/go-delve/delve
+
+2. Open `pkg/proc/bininfo.go` and add `"android"` to switch conditions
+
+```golang
+func loadBinaryInfo(bi *BinaryInfo, image *Image, path string, entryPoint uint64) error {
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	switch bi.GOOS {
+	case "linux", "freebsd", "android": // append android here
+		return loadBinaryInfoElf(bi, image, path, entryPoint, &wg)
+	case "windows":
+		return loadBinaryInfoPE(bi, image, path, entryPoint, &wg)
+	case "darwin":
+		return loadBinaryInfoMacho(bi, image, path, entryPoint, &wg)
+	}
+	return errors.New("unsupported operating system")
+}
+```
+
+
+3. Build dlv
+
+```bash
+CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build ./cmd/dlv/
+```
+
+4. Copy `dlv` to `/data/user/0/io.github.exclude0122.xivpn/files/dlv` using ADB
+
+5. Enter adb shell and execute the following commands
+
+```bash
+ # Note: in order to use run-as, the app must be debuggable
+run-as io.github.exclude0122.xivpn
+cd /data/user/0/io.github.exclude0122.xivpn/files
+# Turn on XiVPN, and then find the PID of libxivpn.so
+ps -A
+# Attach to libxivpn.so. Change PID to the actual PID
+./dlv attach PID --headless --listen "0.0.0.0:23456"
+```
+
+6. Start ADB forward
+
+```bash
+adb forward tcp:23456 tcp:23456
+```
+
+7. Connect to dlv using vscode. An example vscode `launch.json` is provided below:
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Connect to server",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 23456,
+            "host": "127.0.0.1",
+            "substitutePath": []
+        }
+    ]
+}
+```
+
 ## Vscode example configuration
 `.vscode/c_cpp_properties.json`
 
