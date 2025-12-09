@@ -8,9 +8,12 @@ if [ "$2" = "patch" ]; then
   if [ ! -d ".go" ]; then
     echo "Downloading go..."
 
-    rm go1.25.3.linux-amd64.tar.gz
-    curl -L https://go.dev/dl/go1.25.3.linux-amd64.tar.gz > go1.25.3.linux-amd64.tar.gz
-    tar -C ./ -xzf go1.25.3.linux-amd64.tar.gz
+    go_version=$(sed -n -E 's/^go (.*)/\1/p' ./go.mod)
+
+    echo "Downloading $go_version to .go"
+
+    curl -L "https://go.dev/dl/go$go_version.linux-amd64.tar.gz" > "go$go_version.linux-amd64.tar.gz"
+    tar -C ./ -xzf "go$go_version.linux-amd64.tar.gz"
     mv go .go
 
     patch -d .go -p1 -b < goruntime-boottime-over-monotonic.diff
