@@ -46,7 +46,7 @@ export LD=$NDK/bin/ld
 export RANLIB=$NDK/bin/llvm-ranlib
 export STRIP=$TOONDKLCHAIN/bin/llvm-strip
 
-export CGO_LDFLAGS="-v"
+export CGO_LDFLAGS="-v -Wl,-z,max-page-size=16384"
 
 # arm64
 if [ "$arch" = "all" ] || [ "$arch" = "arm64" ]
