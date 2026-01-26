@@ -36,30 +36,6 @@ stop\n
 Client must exit after receiving this message.
 
 
-### Latency Test (Clientbound)
-
-|  | Description | Example |
-| --- | --- | --- |
-| URL | http or https url | https://www.gstatic.com/generate_204 |
-| Request ID | any random number | 879346587 |
-
-```
-test https://www.gstatic.com/generate_204 879346587\n
-```
-
-Client must perform a latency test to the given URL following all routing rules.
-
-### Latency Test Result (Serverbound)
-
-|  | Description | Example |
-| --- | --- | --- |
-| Request ID | same as request | 879346587 |
-| Result | latency (include tls handshake if applicable) in ms | 200 |
-
-```
-test_result 879346587 200\n
-```
-
 
 ### Protect (Serverbound)
 
