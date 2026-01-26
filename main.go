@@ -103,7 +103,7 @@ func main() {
 
 	go func() {
 		log("xray starting")
-		err = libxivpn_start(string(config), 18964, tunFd)
+		err = libxivpn_start(string(config), tunFd)
 		if err != nil {
 			panic(fmt.Errorf("start libxivpn: %w", err))
 		}

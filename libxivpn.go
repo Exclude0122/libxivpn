@@ -5,19 +5,13 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 
-	"strconv"
 	"time"
 
-	"github.com/xjasonlyu/tun2socks/v2/engine"
-	"github.com/xjasonlyu/tun2socks/v2/metadata"
-	"github.com/xjasonlyu/tun2socks/v2/proxy"
-
-	netx "github.com/xtls/xray-core/common/net"
-	"github.com/xtls/xray-core/common/session"
 	"github.com/xtls/xray-core/core"
 	_ "github.com/xtls/xray-core/main/distro/all"
 	"github.com/xtls/xray-core/transport/internet"
@@ -26,27 +20,11 @@ import (
 var xrayServer *core.Instance
 var registerControllerOnce sync.Once
 
-type xrayProxy struct {
-	proxy.Base
-	sniffing session.SniffingRequest
-}
-
-func (s *xrayProxy) DialContext(ctx context.Context, metadata *metadata.Metadata) (net.Conn, error) {
-	ctx = context.WithValue(context.Background(), 1, xrayServer)
-	ctx = session.ContextWithContent(ctx, &session.Content{
-		SniffingRequest: s.sniffing,
-	})
-	return core.Dial(ctx, xrayServer, netx.DestinationFromAddr(metadata.TCPAddr()))
-}
-func (s *xrayProxy) DialUDP(*metadata.Metadata) (net.PacketConn, error) {
-	return core.DialUDP(context.Background(), xrayServer)
-}
-
 func libxivpn_version() string {
 	return strings.Join(core.VersionStatement(), "\n")
 }
 
-func libxivpn_start(config string, socksPort int, fd_ int) error {
+func libxivpn_start(config string, fd_ int) error {
 	// register socket controller
 	registerControllerOnce.Do(func() {
 		log("register controller once")
@@ -84,7 +62,9 @@ func libxivpn_start(config string, socksPort int, fd_ int) error {
 		}
 	})
 
-	log(fmt.Sprintln("start", config, socksPort, fd_))
+	log(fmt.Sprintln("start", config, fd_))
+
+	os.Setenv("XRAY_TUN_FD", strconv.Itoa(fd_))
 
 	// xray
 
@@ -106,36 +86,10 @@ func libxivpn_start(config string, socksPort int, fd_ int) error {
 		return err
 	}
 
-	loglevel := os.Getenv("LOG_LEVEL")
-	if loglevel == "warning" {
-		loglevel = "warn"
-	}
-
-	// tun2socks
-	engine.Insert(&engine.Key{
-		MTU:        1420,
-		Device:     "fd://" + strconv.Itoa(int(fd_)),
-		LogLevel:   loglevel,
-		UDPTimeout: time.Second * 10,
-	})
-
-	engine.SetProxy(&xrayProxy{
-		Base: proxy.NewBase("xray", 255),
-		sniffing: session.SniffingRequest{
-			OverrideDestinationForProtocol: []string{"http", "tls"},
-			Enabled:                        os.Getenv("XRAY_SNIFFING") == "true",
-			RouteOnly:                      os.Getenv("XRAY_SNIFFING_ROUTE_ONLY") == "true",
-		},
-	})
-	engine.Start()
 	return nil
 }
 
 func libxivpn_stop() {
-	// engine.Stop() will not close fd
-	// it has no effect if engine is never started
-	engine.Stop()
-
 	if xrayServer != nil {
 		err := xrayServer.Close()
 		if err != nil {
