@@ -1,8 +1,8 @@
 module libxivpn
 
-go 1.25.6
+go 1.25.7
 
-require github.com/xtls/xray-core v1.260202.0
+require github.com/xtls/xray-core v1.260206.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
