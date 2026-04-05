@@ -52,3 +52,21 @@ protect_ack\n
 ```
 
 Server must send this packet once the fd sent from the client has been protected.
+
+
+### Find process (Serverbound)
+
+```
+find_process tcp/udp local_ip local_port remote_ip remote_port\n
+```
+
+Client must not send any new protect requests until the previous find process request has been acknowledged.
+
+
+### Find process response (Clientbound)
+
+```
+find_process_resp [uid]\n
+```
+
+If uid could not be determined, return `-1`.

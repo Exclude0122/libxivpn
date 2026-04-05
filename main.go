@@ -11,10 +11,13 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
+
+	xraynet "github.com/xtls/xray-core/common/net"
 )
 
 var ipcConn *net.UnixConn
@@ -59,6 +62,7 @@ func recvFd() int {
 
 var ipcWriteLock sync.Mutex
 var protectDone = make(chan int)
+var findProcessDone = make(chan int) // uid
 
 func protectFd(fd uintptr) {
 	ipcWriteLock.Lock()
@@ -84,6 +88,33 @@ func protectFd(fd uintptr) {
 func main() {
 	log("libxivpn")
 	log(libxivpn_version())
+
+	xraynet.AndroidFindProcessImpl = func(src, dest xraynet.Destination) (int, string, string, error) {
+		ipcWriteLock.Lock()
+		defer ipcWriteLock.Unlock()
+
+		log(fmt.Sprintf("find process %s:%d -> %s:%d", src.Address.IP(), src.Port, dest.Address.IP(), dest.Port))
+
+		network := "tcp"
+		if src.Network == xraynet.Network_UDP {
+			network = "udp"
+		}
+
+		_, err := fmt.Fprintf(ipcConn, "find_process %s %s %d %s %d\n", network, src.Address.IP(), src.Port, dest.Address.IP(), dest.Port)
+		if err != nil {
+			return 0, "", "", fmt.Errorf("write to ipc conn: %w", err)
+		}
+
+		result := <-findProcessDone
+
+		log(fmt.Sprintf("find process result: %d", result))
+
+		if result < 0 {
+			return 0, "", "", fmt.Errorf("find process failed")
+		}
+
+		return 0, strconv.Itoa(result), "", nil
+	}
 
 	config, err := os.ReadFile(filepath.Join(os.Getenv("XRAY_LOCATION_ASSET"), "config.json"))
 	if err != nil {
@@ -151,6 +182,12 @@ ipcLoop:
 		case "stop":
 			break ipcLoop
 
+		case "find_process_resp":
+			result, err := strconv.Atoi(strings.TrimSpace(splits[1]))
+			if err != nil {
+				panic("parse find process result: " + splits[1] + " error: " + err.Error())
+			}
+			findProcessDone <- result
 		}
 	}
 

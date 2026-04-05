@@ -4,6 +4,8 @@ go 1.26.1
 
 require github.com/xtls/xray-core v1.260327.0
 
+replace github.com/xtls/xray-core => github.com/Exclude0122/Xray-core v1.8.25-0.20260405181034-56d5f3987130
+
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/apernet/quic-go v0.59.1-0.20260217092621-db4786c77a22 // indirect
