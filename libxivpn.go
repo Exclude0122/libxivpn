@@ -30,6 +30,7 @@ func libxivpn_start(config string, fd_ int) error {
 		log("register controller once")
 
 		err := internet.RegisterDialerController(func(network, address string, conn syscall.RawConn) error {
+			log("dialer controller " + network + " " + address)
 			return conn.Control(protectFd)
 		})
 		if err != nil {
@@ -37,10 +38,11 @@ func libxivpn_start(config string, fd_ int) error {
 		}
 
 		err = internet.RegisterListenerController(func(network, address string, conn syscall.RawConn) error {
+			log("listener controller " + network + " " + address)
 			return conn.Control(protectFd)
 		})
 		if err != nil {
-			log("failed to register dialer controller")
+			log("failed to register listener controller")
 		}
 
 		// copied from https://github.com/XTLS/libXray/blob/main/dns/dns_android.go
