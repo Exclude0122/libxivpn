@@ -89,6 +89,7 @@ func main() {
 	log("libxivpn")
 	log(libxivpn_version())
 
+	// find process
 	xraynet.RegisterAndroidProcessFinder(func(network, srcIP string, srcPort uint16, destIP string, destPort uint16) (int, string, string, error) {
 		ipcWriteLock.Lock()
 		defer ipcWriteLock.Unlock()
@@ -107,10 +108,6 @@ func main() {
 		result := <-findProcessDone
 
 		log(fmt.Sprintf("find process result: %d", result))
-
-		if result < 0 {
-			return 0, "", "", fmt.Errorf("find process failed")
-		}
 
 		return 0, strconv.Itoa(result), "", nil
 	})
