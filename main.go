@@ -89,18 +89,17 @@ func main() {
 	log("libxivpn")
 	log(libxivpn_version())
 
-	xraynet.AndroidFindProcessImpl = func(src, dest xraynet.Destination) (int, string, string, error) {
+	xraynet.RegisterAndroidProcessFinder(func(network, srcIP string, srcPort uint16, destIP string, destPort uint16) (int, string, string, error) {
 		ipcWriteLock.Lock()
 		defer ipcWriteLock.Unlock()
 
-		log(fmt.Sprintf("find process %s:%d -> %s:%d", src.Address.IP(), src.Port, dest.Address.IP(), dest.Port))
+		log(fmt.Sprintf("find process %s:%d -> %s:%d", srcIP, srcPort, destIP, destPort))
 
-		network := "tcp"
-		if src.Network == xraynet.Network_UDP {
-			network = "udp"
+		if network != "tcp" && network != "udp" {
+			return 0, "", "", fmt.Errorf("unsupported network: %s", network)
 		}
 
-		_, err := fmt.Fprintf(ipcConn, "find_process %s %s %d %s %d\n", network, src.Address.IP(), src.Port, dest.Address.IP(), dest.Port)
+		_, err := fmt.Fprintf(ipcConn, "find_process %s %s %d %s %d\n", network, srcIP, srcPort, destIP, destPort)
 		if err != nil {
 			return 0, "", "", fmt.Errorf("write to ipc conn: %w", err)
 		}
@@ -114,7 +113,7 @@ func main() {
 		}
 
 		return 0, strconv.Itoa(result), "", nil
-	}
+	})
 
 	config, err := os.ReadFile(filepath.Join(os.Getenv("XRAY_LOCATION_ASSET"), "config.json"))
 	if err != nil {

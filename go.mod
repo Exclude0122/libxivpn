@@ -4,7 +4,7 @@ go 1.26.1
 
 require github.com/xtls/xray-core v1.260327.0
 
-replace github.com/xtls/xray-core => github.com/Exclude0122/Xray-core v1.8.25-0.20260405181034-56d5f3987130
+replace github.com/xtls/xray-core => github.com/Exclude0122/Xray-core v1.8.25-0.20260411205421-209dc9ea074c
 
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
