@@ -59,7 +59,7 @@ then
     export CXX=$NDK/bin/aarch64-linux-android21-clang++
     export TARGET=aarch64-linux-android
 
-    go build -buildmode=pie -trimpath -o libxivpn_arm64.so -ldflags="-checklinkname=0 -s -w -buildid=" -buildvcs=false
+    go build -buildmode=pie -trimpath -o libxivpn_arm64.so -ldflags="-s -w -buildid=" -buildvcs=false
 
     # chmod +x libxivpn_arm64.so
     # upx --android-shlib libxivpn_arm64.so
@@ -76,7 +76,7 @@ then
     export CXX=$NDK/bin/x86_64-linux-android21-clang++
     export TARGET=x86_64-linux-android
 
-    go build -buildmode=pie -trimpath -o libxivpn_x86_64.so -ldflags="-checklinkname=0 -s -w -buildid=" -buildvcs=false
+    go build -buildmode=pie -trimpath -o libxivpn_x86_64.so -ldflags="-s -w -buildid=" -buildvcs=false
 
     # chmod +x libxivpn_x86_64.so
     # upx --android-shlib libxivpn_x86_64.so
@@ -94,7 +94,7 @@ then
     export CXX=$NDK/bin/armv7a-linux-androideabi21-clang++
     export TARGET=armv7a-linux-android
 
-    go build -buildmode=pie -trimpath -o libxivpn_armv7a.so -ldflags="-checklinkname=0 -s -w -buildid=" -buildvcs=false
+    go build -buildmode=pie -trimpath -o libxivpn_armv7a.so -ldflags="-s -w -buildid=" -buildvcs=false
 
     # chmod +x libxivpn_armv7a.so
     # upx --android-shlib libxivpn_armv7a.so
