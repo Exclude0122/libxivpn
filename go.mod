@@ -1,6 +1,6 @@
 module libxivpn
 
-go 1.26.3
+go 1.26.4
 
 require github.com/xtls/xray-core v1.260327.1-0.20260601021109-94ffd50060f1
 
