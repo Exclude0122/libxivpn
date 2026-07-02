@@ -70,3 +70,18 @@ find_process_resp [uid]\n
 ```
 
 If uid could not be determined, return `-1`.
+
+
+### Stats Request (Clientbound)
+
+```
+stats\n
+```
+
+### Stats Response (Clientbound)
+
+```
+stats_resp [bytes read] [bytes written]\n
+```
+
+Returns the total number of bytes read from and written to the tun interface. 

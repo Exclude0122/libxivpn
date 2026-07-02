@@ -184,7 +184,19 @@ ipcLoop:
 				panic("parse find process result: " + splits[1] + " error: " + err.Error())
 			}
 			findProcessDone <- result
+
+		case "stats":
+
+			up, down := libxivpn_stats()
+			ipcWriteLock.Lock()
+			_, err := fmt.Fprintf(ipcConn, "stats_resp %d %d\n", up, down)
+			if err != nil {
+				panic("ipc write: " + err.Error())
+			}
+			ipcWriteLock.Unlock()
+
 		}
+
 	}
 
 	log("stop libxivpn")

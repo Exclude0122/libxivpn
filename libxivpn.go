@@ -13,12 +13,14 @@ import (
 	"time"
 
 	"github.com/xtls/xray-core/core"
+	corestats "github.com/xtls/xray-core/features/stats"
 	_ "github.com/xtls/xray-core/main/distro/all"
 	"github.com/xtls/xray-core/transport/internet"
 )
 
 var xrayServer *core.Instance
 var registerControllerOnce sync.Once
+var xrayStats corestats.Manager
 
 func libxivpn_version() string {
 	return strings.Join(core.VersionStatement(), "\n")
@@ -82,6 +84,12 @@ func libxivpn_start(config string, fd_ int) error {
 		return err
 	}
 
+	s, ok := xrayServer.GetFeature(corestats.ManagerType()).(corestats.Manager)
+	if !ok || s == nil {
+		return fmt.Errorf("failed to get stats manager")
+	}
+	xrayStats = s
+
 	err = xrayServer.Start()
 	if err != nil {
 		log("libxivpn_start xray3: " + err.Error())
@@ -100,5 +108,25 @@ func libxivpn_stop() {
 			log("xray server closed")
 		}
 		xrayServer = nil
+		xrayStats = nil
 	}
+}
+
+func libxivpn_stats() (int64, int64) {
+	if xrayServer != nil && xrayStats != nil {
+		var up int64 = 0
+		var down int64 = 0
+		counter := xrayStats.GetCounter("inbound>>>tun-in>>>traffic>>>uplink")
+		if counter != nil {
+			up = counter.Value()
+		}
+		counter = xrayStats.GetCounter("inbound>>>tun-in>>>traffic>>>downlink")
+		if counter != nil {
+			down = counter.Value()
+		}
+
+		return up, down
+	}
+
+	return 0, 0
 }
