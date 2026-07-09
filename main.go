@@ -60,11 +60,19 @@ func recvFd() int {
 	return fds[0]
 }
 
-var ipcWriteLock sync.Mutex
-var protectDone = make(chan int)
-var findProcessDone = make(chan int) // uid
+var (
+	ipcWriteLock sync.Mutex
+
+	protectLock     sync.Mutex
+	protectDone     = make(chan int)
+	findProcessLock sync.Mutex
+	findProcessDone = make(chan int) // uid
+)
 
 func protectFd(fd uintptr) {
+	protectLock.Lock()
+	defer protectLock.Unlock()
+
 	ipcWriteLock.Lock()
 
 	log(fmt.Sprintf("protectFd %d start", fd))
@@ -93,6 +101,8 @@ func main() {
 	// find process
 	xraynet.RegisterAndroidProcessFinder(func(network, srcIP string, srcPort uint16, destIP string, destPort uint16) (int, string, string, error) {
 		ipcWriteLock.Lock()
+		findProcessLock.Lock()
+		defer findProcessLock.Unlock()
 
 		log(fmt.Sprintf("find process %s:%d -> %s:%d", srcIP, srcPort, destIP, destPort))
 
