@@ -66,7 +66,6 @@ var findProcessDone = make(chan int) // uid
 
 func protectFd(fd uintptr) {
 	ipcWriteLock.Lock()
-	defer ipcWriteLock.Unlock()
 
 	log(fmt.Sprintf("protectFd %d start", fd))
 
@@ -78,6 +77,8 @@ func protectFd(fd uintptr) {
 	}
 
 	log(fmt.Sprintf("protectFd %d waiting ack", fd))
+
+	ipcWriteLock.Unlock()
 
 	<-protectDone // wait for protect to finish
 
@@ -92,7 +93,6 @@ func main() {
 	// find process
 	xraynet.RegisterAndroidProcessFinder(func(network, srcIP string, srcPort uint16, destIP string, destPort uint16) (int, string, string, error) {
 		ipcWriteLock.Lock()
-		defer ipcWriteLock.Unlock()
 
 		log(fmt.Sprintf("find process %s:%d -> %s:%d", srcIP, srcPort, destIP, destPort))
 
@@ -100,10 +100,13 @@ func main() {
 			return 0, "", "", fmt.Errorf("unsupported network: %s", network)
 		}
 
+		ipcWriteLock.Lock()
 		_, err := fmt.Fprintf(ipcConn, "find_process %s %s %d %s %d\n", network, srcIP, srcPort, destIP, destPort)
 		if err != nil {
+			ipcWriteLock.Unlock()
 			return 0, "", "", fmt.Errorf("write to ipc conn: %w", err)
 		}
+		ipcWriteLock.Unlock()
 
 		result := <-findProcessDone
 
