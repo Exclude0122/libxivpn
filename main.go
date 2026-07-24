@@ -100,7 +100,6 @@ func main() {
 
 	// find process
 	xraynet.RegisterAndroidProcessFinder(func(network, srcIP string, srcPort uint16, destIP string, destPort uint16) (int, string, string, error) {
-		ipcWriteLock.Lock()
 		findProcessLock.Lock()
 		defer findProcessLock.Unlock()
 
